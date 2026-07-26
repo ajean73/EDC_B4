@@ -99,3 +99,8 @@ Les flux entrants correspondent aux opérations de lecture et d’écriture dema
 Les flux sortants correspondent aux entités persistées et aux résultats de requêtes.
 
 Concernant les dépendances, ce module s’appuie sur JPA/Hibernate et la base de données relationnelle.
+
+
+# Diagramme UML (composants)
+
+![Diagramme UML](images/Diagramme_UML_Composants.png)
