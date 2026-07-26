@@ -1,4 +1,4 @@
-# Liste des modules identifiés
+# Question 1
 
 Voici la liste des modules que j’ai identifié en me basant sur l’énoncé et les users storys :
 
@@ -104,3 +104,33 @@ Concernant les dépendances, ce module s’appuie sur JPA/Hibernate et la base d
 # Diagramme UML (composants)
 
 ![Diagramme UML](images/Diagramme_UML_Composants.png)
+
+# Critères de qualité
+
+## Évolutivité
+
+Les modules sont définis avec un découpage permettant de limiter le nombre d’opérations et de modules à modifier lors d’une évolution du code.
+
+J’ai utilisé des interfaces afin que les modules communiquent entre eux via des abstractions. Cela permet de remplacer facilement certaines implémentations sans impacter l’ensemble du système.
+
+Concernant la sécurité et la gestion des erreurs, j’ai choisi de créer deux modules séparés afin d’externaliser ces traitements et de conserver une meilleure séparation des responsabilités.
+
+---
+
+## Robustesse
+
+Le module **Security** permet de protéger les endpoints API critiques.
+
+Le module **Error Handling** permet de retourner des erreurs dans un format JSON standardisé, facilement accessible et compréhensible par les développeurs.
+
+L’utilisation d’interfaces permet de diminuer le couplage entre les modules et de limiter les potentielles régressions.
+
+Enfin, l’attribution d’un rôle unique par module permet de favoriser la cohérence ainsi qu’une meilleure séparation des responsabilités de chaque composant.
+
+---
+
+## Testabilité
+
+L’utilisation d’interfaces permet de réaliser facilement des mocks au niveau des dépendances, ce qui facilite l’écriture et la maintenance des tests.
+
+Le découpage en modules distincts permet également de mieux isoler les composants et de faciliter la détection des problèmes lors de l’exécution des tests.
