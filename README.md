@@ -153,7 +153,7 @@ Le découpage en modules distincts permet également de mieux isoler les composa
 - Methode: GET
 - URL: /api/sales/{id}
 
-## Question 3
+# Question 3
 
 
 J'ai choisi de mettre en place une sécurisation au niveau de l'API via un système d'authentification par JWT Bearer.
