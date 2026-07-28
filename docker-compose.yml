@@ -3,18 +3,31 @@ services:
     image: postgres:16-alpine
     container_name: shopwise-postgres
     environment:
-      POSTGRES_DB: shopwise
-      POSTGRES_USER: shopwise
-      POSTGRES_PASSWORD: shopwise
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U shopwise -d shopwise"]
+      test: ["CMD-SHELL", "pg_isready -U ${SPRING_DATASOURCE_USERNAME} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0
+    container_name: shopwise-keycloak
+    command: ["start", "--import-realm", "--http-enabled=true", "--hostname-strict=false"]
+    environment:
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    volumes:
+      - ./keycloak/realm-shopwise.json:/opt/keycloak/data/import/realm-shopwise.json:ro
+    healthcheck:
+      test: ["CMD-SHELL", "{ printf 'GET /realms/shopwise/.well-known/openid-configuration HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3; grep -q '200' <&3; } 3<>/dev/tcp/localhost/8080"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   backend:
     build:
@@ -24,11 +37,14 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shopwise
-      SPRING_DATASOURCE_USERNAME: shopwise
-      SPRING_DATASOURCE_PASSWORD: shopwise
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: ${SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI}
     ports:
       - "8080:8080"
     restart: unless-stopped
