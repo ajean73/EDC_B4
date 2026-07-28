@@ -134,3 +134,9 @@ Enfin, l’attribution d’un rôle unique par module permet de favoriser la coh
 L’utilisation d’interfaces permet de réaliser facilement des mocks au niveau des dépendances, ce qui facilite l’écriture et la maintenance des tests.
 
 Le découpage en modules distincts permet également de mieux isoler les composants et de faciliter la détection des problèmes lors de l’exécution des tests.
+
+# Question 2
+
+# Schéma base de données (Module Sales)
+
+![Schéma base de données](bdd/diagramme_base_données.png)
