@@ -140,3 +140,15 @@ Le découpage en modules distincts permet également de mieux isoler les composa
 # Schéma base de données (Module Sales)
 
 ![Schéma base de données](bdd/diagramme_base_données.png)
+
+## 1) Creer une vente
+- Methode: POST
+- URL: /api/sales
+
+## 2) Lister les ventes
+- Methode: GET
+- URL: /api/sales
+
+## 3) Detail d'une vente
+- Methode: GET
+- URL: /api/sales/{id}
