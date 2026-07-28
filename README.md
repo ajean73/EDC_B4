@@ -152,3 +152,22 @@ Le découpage en modules distincts permet également de mieux isoler les composa
 ## 3) Detail d'une vente
 - Methode: GET
 - URL: /api/sales/{id}
+
+## Question 3
+
+
+J'ai choisi de mettre en place une sécurisation au niveau de l'API via un système d'authentification par JWT Bearer.
+J'utilise Keycloak pour la génération des tokens. Spring Security Resource Server est en charge de la vérification des tokens générés par ce dernier. J'ai mis en place deux niveaux de rôles pour gérer les différentes permissions. Le rôle "ADMIN" permet de réaliser des opérations d'écriture sensibles et le rôle USER permet de réaliser de simples consultations.  
+
+Configuration JWT via variables d'environnement:
+- `SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI`
+- `KEYCLOAK_ADMIN`
+- `KEYCLOAK_ADMIN_PASSWORD`
+
+Concernnant les retours API, j'ai mis en place un format JSON standard.
+L'uniformisation du format est réalisée via ErrorResponse.java.
+Code 400: (Bad request)  Requête invalide
+Code 401: (Unauthorized) Accès non autorisé lorsque l'authentification est manquante ou invalide 
+Code 403: (Forbidden) Accès interdit car rôle insuffisant
+Code 404: (Not found) La ressource est absente
+Code 500:  (Internal Server Error) Erreur côté serveur
