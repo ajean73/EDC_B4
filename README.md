@@ -171,3 +171,26 @@ Code 401: (Unauthorized) Accès non autorisé lorsque l'authentification est man
 Code 403: (Forbidden) Accès interdit car rôle insuffisant
 Code 404: (Not found) La ressource est absente
 Code 500:  (Internal Server Error) Erreur côté serveur
+
+## Question 4
+
+Le périmètre fonctionnel du module de recommandation repose sur deux sources de données. La première source est l'historique des ventes, stocké dans les tables SALES et SALE_ITEMS, qui permet d'observer les produits achetés ensemble dans les transactions passées. La seconde source est le catalogue de produits, stocké dans la table PRODUCTS, qui permet de filtrer et d'enrichir les résultats pour ne recommander que des produits existants (via nom + identifiant).
+
+Le module "Recommendation" produit deux types de recommandations selon le contexte. Lorsque le paramètre productId est fourni, le système génère des recommandations de produits associés au produit de référence, à partir des achats simulatanés observés dans l'historique. Lorsque productId n'est pas fourni, le système renvoie une sélection de produits de type "best-sellers", dans le but de proposer des articles populaires même sans contexte précis.
+
+### Algorithme ML 
+
+L'algorithme implémenté est un algorithme de règles d'association, inspiré de l'approche de type Apriori sur des paires de produits. Son objectif est de détecter des relations utiles de la forme X vers Y, ce qui signifie que la présence de X dans un panier augmente la probabilité d'acheter Y. Tout d'abord, chaque vente est transformée en transaction contenant un ensemble de produits. Ensuite, le module calcule les fréquences d'apparition des produits seuls et des paires de produits. Ces informations permettent d'obtenir les éléments statistiques nécessaires à l'évaluation des règles.
+
+J'utilise trois mesures qui permettent d'établir les recommandations:
+
+1. Support: fréquence d'apparition d'un produit ou paire de produits dans l'ensemble de l'historique.
+2. Confidence: Correspond à la probabilité d'observer un produit A quand un produit B est déjà présent.
+3. Lift: Forcé réélle de la relation entre les produits A et B par rapport au hasard. 
+
+J'ai mis en place les seuils minimum suivants:
+1. Support = 0.05
+2. Confidence = 0.15
+3. Lift = 1.00
+
+Le module conserve uniquement les règles qui dépassent les différents seuils minimaux, ce qui permet d'écarter les associations jugées moins pertinentes. Les produits sont ensuite classés avec un score. Le moteur retourne alors les n meilleurs résultats, avec une stratégie de fallback qui propose des produits de type "best-sellers" ou des produits du catalogue lorsque l'historique est insuffisant ou losrqu'aucune règle exploitable n'est disponible.
