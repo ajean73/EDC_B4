@@ -194,3 +194,49 @@ J'ai mis en place les seuils minimum suivants:
 3. Lift = 1.00
 
 Le module conserve uniquement les règles qui dépassent les différents seuils minimaux, ce qui permet d'écarter les associations jugées moins pertinentes. Les produits sont ensuite classés avec un score. Le moteur retourne alors les n meilleurs résultats, avec une stratégie de fallback qui propose des produits de type "best-sellers" ou des produits du catalogue lorsque l'historique est insuffisant ou losrqu'aucune règle exploitable n'est disponible.
+
+# Question 5
+
+Dans ce projet, j'ai organisé les tests en trois entités. Les tests unitaires sont placés dans `src/test/java/com/shopwise/app/unit`, les tests d'intégration dans `src/test/java/com/shopwise/app/integration`, et les tests de non regression API dans `src/test/java/com/shopwise/app/nonregression`.
+
+## Tests unitaires
+
+J'ai mis en place des tests en utilisant des mocks pour isoler les dépendances. Ce type de tests couvre notamment la création et la mise a jour des produits, les règles de calcul des ventes, ainsi que la logique de recommandation.
+
+## Tests d'intégration
+
+Le test `SaleRepositoryIT` couvre des cas de persistance et de consultation des ventes sur PostgreSQL avec Testcontainers. Il permet de vérifier le bon fonctionnement des requêtes du repository et la coherence du mapping JPA.
+
+## Tests de non régression
+
+Les tests de non régression valident la gestion des retours HTTP et les règles de sécurité déjà attendues par l'application. Les classes API vérifient les statuts de réponse, la structure des retours JSON et les accès selon les rôles. Cela permet de s'assurer que les logiques critiques de l'application ne connaissent pas de régression. 
+
+## Utilisation de Surefire et Failsafe
+
+La séparation de l'éxecution repose sur deux plugins Maven complémentaires.
+
+Tout d'abord, j'ai utilisé le plugin Surefire. Il execute les classes contenant le suffixe `Test` dans les dossiers `unit` et `nonregression`. Ainsi, la commande `mvn test` lance les tests rapides utilisés pour un besoin immédiat en développement.
+
+Ensuite, le plugin Failsafe intervient pendant la phase d'intégration. Il exécute les classes contenant un suffixe `IT` dans le dossier `integration`. 
+
+Cette convention de nommage (`*Test` pour unitaire et non regression, `*IT` pour intégration) permet de lancer automatiquement chaque test vers le bon plugin.
+
+## Commandes d'éxecution
+
+```bash
+# Unitaires + non regression
+mvn clean test
+
+# Coverage unitaires + non regression uniquement
+mvn clean test jacoco:report
+
+# Tests complets (unitaires + non regression + integration)
+mvn clean verify
+
+# Intégration uniquement
+mvn -DskipUnitTests=true verify
+```
+
+## Couverture et rapports
+
+Un rapport HTML est disponible dans `couverture/index.html` et un rapport XML dans `couverture/jacoco.xml`.
