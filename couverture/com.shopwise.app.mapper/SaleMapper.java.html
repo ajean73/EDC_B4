@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleMapper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.mapper</a> &gt; <span class="el_source">SaleMapper.java</span></div><h1>SaleMapper.java</h1><pre class="source lang-java linenums">package com.shopwise.app.mapper;
+
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+import com.shopwise.app.dto.response.SaleItemResponse;
+import com.shopwise.app.dto.response.SaleResponse;
+import com.shopwise.app.dto.response.SaleSummaryResponse;
+import com.shopwise.app.entity.Sale;
+import com.shopwise.app.entity.SaleItem;
+
+@Component
+<span class="nc" id="L14">public class SaleMapper {</span>
+
+    public SaleResponse toResponse(Sale sale) {
+<span class="nc" id="L17">        SaleResponse response = new SaleResponse();</span>
+<span class="nc" id="L18">        response.setId(sale.getId());</span>
+<span class="nc" id="L19">        response.setSoldAt(sale.getSoldAt());</span>
+<span class="nc" id="L20">        response.setTotalAmount(sale.getTotalAmount());</span>
+<span class="nc" id="L21">        response.setLines(sale.getLines().stream().map(this::toItemResponse).toList());</span>
+<span class="nc" id="L22">        return response;</span>
+    }
+
+    public SaleSummaryResponse toSummary(Sale sale) {
+<span class="nc" id="L26">        SaleSummaryResponse summary = new SaleSummaryResponse();</span>
+<span class="nc" id="L27">        summary.setId(sale.getId());</span>
+<span class="nc" id="L28">        summary.setSoldAt(sale.getSoldAt());</span>
+<span class="nc" id="L29">        summary.setTotalAmount(sale.getTotalAmount());</span>
+<span class="nc" id="L30">        summary.setLineCount(sale.getLines().size());</span>
+<span class="nc" id="L31">        return summary;</span>
+    }
+
+    public List&lt;SaleSummaryResponse&gt; toSummaryList(List&lt;Sale&gt; sales) {
+<span class="nc" id="L35">        return sales.stream().map(this::toSummary).toList();</span>
+    }
+
+    private SaleItemResponse toItemResponse(SaleItem line) {
+<span class="nc" id="L39">        SaleItemResponse response = new SaleItemResponse();</span>
+<span class="nc" id="L40">        response.setProductId(line.getProduct().getId());</span>
+<span class="nc" id="L41">        response.setProductName(line.getProduct().getName());</span>
+<span class="nc" id="L42">        response.setQuantity(line.getQuantity());</span>
+<span class="nc" id="L43">        response.setUnitPrice(line.getUnitPrice());</span>
+<span class="nc" id="L44">        response.setItemTotal(line.getItemTotal());</span>
+<span class="nc" id="L45">        return response;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

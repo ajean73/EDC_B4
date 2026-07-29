@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SaleServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">app</a> &gt; <a href="index.source.html" class="el_package">com.shopwise.app.service</a> &gt; <span class="el_source">SaleServiceImpl.java</span></div><h1>SaleServiceImpl.java</h1><pre class="source lang-java linenums">package com.shopwise.app.service;
+
+import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.springframework.stereotype.Service;
+
+import com.shopwise.app.dto.request.CreateSaleItemRequest;
+import com.shopwise.app.dto.request.CreateSaleRequest;
+import com.shopwise.app.dto.response.SaleResponse;
+import com.shopwise.app.dto.response.SaleSummaryResponse;
+import com.shopwise.app.entity.Product;
+import com.shopwise.app.entity.Sale;
+import com.shopwise.app.entity.SaleItem;
+import com.shopwise.app.exception.NotFoundException;
+import com.shopwise.app.mapper.SaleMapper;
+import com.shopwise.app.repository.ProductRepository;
+import com.shopwise.app.repository.SaleRepository;
+
+import jakarta.transaction.Transactional;
+
+@Service
+@Transactional
+public class SaleServiceImpl implements SaleService {
+
+    private final SaleRepository saleRepository;
+    private final ProductRepository productRepository;
+    private final SaleMapper saleMapper;
+
+<span class="fc" id="L34">    public SaleServiceImpl(SaleRepository saleRepository, ProductRepository productRepository, SaleMapper saleMapper) {</span>
+<span class="fc" id="L35">        this.saleRepository = saleRepository;</span>
+<span class="fc" id="L36">        this.productRepository = productRepository;</span>
+<span class="fc" id="L37">        this.saleMapper = saleMapper;</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public SaleResponse create(CreateSaleRequest request) {
+<span class="fc" id="L42">        Map&lt;Long, Product&gt; productsById = loadProductsById(request.getLines());</span>
+
+<span class="fc" id="L44">        Sale sale = new Sale();</span>
+<span class="fc" id="L45">        BigDecimal total = BigDecimal.ZERO;</span>
+
+<span class="fc bfc" id="L47" title="All 2 branches covered.">        for (CreateSaleItemRequest lineRequest : request.getLines()) {</span>
+<span class="fc" id="L48">            Product product = productsById.get(lineRequest.getProductId());</span>
+<span class="fc" id="L49">            BigDecimal unitPrice = product.getPrice();</span>
+<span class="fc" id="L50">            BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(lineRequest.getQuantity()));</span>
+
+<span class="fc" id="L52">            SaleItem line = new SaleItem();</span>
+<span class="fc" id="L53">            line.setProduct(product);</span>
+<span class="fc" id="L54">            line.setQuantity(lineRequest.getQuantity());</span>
+<span class="fc" id="L55">            line.setUnitPrice(unitPrice);</span>
+<span class="fc" id="L56">            line.setItemTotal(itemTotal);</span>
+
+<span class="fc" id="L58">            sale.addLine(line);</span>
+<span class="fc" id="L59">            total = total.add(itemTotal);</span>
+<span class="fc" id="L60">        }</span>
+
+<span class="fc" id="L62">        sale.setTotalAmount(total);</span>
+
+<span class="fc" id="L64">        Sale saved = saleRepository.save(sale);</span>
+<span class="fc" id="L65">        return saleMapper.toResponse(saved);</span>
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public List&lt;SaleSummaryResponse&gt; getAll() {
+<span class="fc" id="L71">        List&lt;Sale&gt; sales = saleRepository.findAllByOrderBySoldAtDesc();</span>
+<span class="fc" id="L72">        return saleMapper.toSummaryList(sales);</span>
+    }
+
+    @Override
+    @Transactional(Transactional.TxType.SUPPORTS)
+    public SaleResponse getById(Long id) {
+<span class="fc" id="L78">        Sale sale = saleRepository.findWithLinesById(id)</span>
+<span class="pc" id="L79">                .orElseThrow(() -&gt; new NotFoundException(&quot;Sale not found&quot;));</span>
+<span class="nc" id="L80">        return saleMapper.toResponse(sale);</span>
+    }
+
+    private Map&lt;Long, Product&gt; loadProductsById(List&lt;CreateSaleItemRequest&gt; lines) {
+<span class="fc" id="L84">        Set&lt;Long&gt; productIds = new HashSet&lt;&gt;();</span>
+<span class="fc bfc" id="L85" title="All 2 branches covered.">        for (CreateSaleItemRequest line : lines) {</span>
+<span class="fc" id="L86">            productIds.add(line.getProductId());</span>
+<span class="fc" id="L87">        }</span>
+
+<span class="fc" id="L89">        List&lt;Product&gt; products = productRepository.findAllById(productIds);</span>
+
+<span class="fc" id="L91">        Map&lt;Long, Product&gt; productsById = new HashMap&lt;&gt;();</span>
+<span class="fc bfc" id="L92" title="All 2 branches covered.">        for (Product product : products) {</span>
+<span class="fc" id="L93">            productsById.put(product.getId(), product);</span>
+<span class="fc" id="L94">        }</span>
+
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        for (Long productId : productIds) {</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            if (!productsById.containsKey(productId)) {</span>
+<span class="fc" id="L98">                throw new NotFoundException(&quot;Product not found with id: &quot; + productId);</span>
+            }
+<span class="fc" id="L100">        }</span>
+
+<span class="fc" id="L102">        return productsById;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
