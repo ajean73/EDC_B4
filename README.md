@@ -174,36 +174,23 @@ Code 500:  (Internal Server Error) Erreur côté serveur
 
 ## Question 4
 
-### Périmètre fonctionnel du module Recommandation
+Le périmètre fonctionnel du module de recommandation repose sur deux sources de données. La première source est l'historique des ventes, stocké dans les tables SALES et SALE_ITEMS, qui permet d'observer les produits achetés ensemble dans les transactions passées. La seconde source est le catalogue de produits, stocké dans la table PRODUCTS, qui permet de filtrer et d'enrichir les résultats pour ne recommander que des produits existants (via nom + identifiant).
 
-Sources de données exploitées:
-Le périmètre fonctionnel du module de recommandation repose sur deux sources de données principales. La première source est l'historique des ventes, stocké dans les tables SALES et SALE_ITEMS, qui permet d'observer les produits achetés ensemble dans les transactions passées. La seconde source est le catalogue de produits, stocké dans la table PRODUCTS, qui permet de filtrer et d'enrichir les résultats pour ne recommander que des produits existants, avec leur identifiant et leur nom.
+Le module "Recommendation" produit deux types de recommandations selon le contexte. Lorsque le paramètre productId est fourni, le système génère des recommandations de produits associés au produit de référence, à partir des achats simulatanés observés dans l'historique. Lorsque productId n'est pas fourni, le système renvoie une sélection de produits de type "best-sellers", dans le but de proposer des articles populaires même sans contexte précis.
 
-Le module produit deux types de recommandations selon le contexte d'usage. Lorsque le paramètre productId est fourni, le système génère des recommandations de produits associés au produit de référence, à partir des co-achats observés dans l'historique. Lorsque productId n'est pas fourni, le système renvoie une sélection de produits de type best-sellers, afin de proposer des articles populaires même sans contexte précis. L'accès se fait via l'endpoint GET /api/recommendations?productId={id}&limit={n}, avec un paramètre productId optionnel et un paramètre limit optionnel, fixé par défaut à 5 et plafonné à 20.
+### Algorithme ML 
 
-### Algorithme ML implémenté
+L'algorithme implémenté est un algorithme de règles d'association, inspiré de l'approche de type Apriori sur des paires de produits. Son objectif est de détecter des relations utiles de la forme X vers Y, ce qui signifie que la présence de X dans un panier augmente la probabilité d'acheter Y. Tout d'abord, chaque vente est transformée en transaction contenant un ensemble de produits. Ensuite, le module calcule les fréquences d'apparition des produits seuls et des paires de produits. Ces informations permettent d'obtenir les éléments statistiques nécessaires à l'évaluation des règles.
 
-L'algorithme implémenté est un algorithme de règles d'association, inspiré des approches de type Apriori et FP-Growth sur des paires de produits. Son objectif est de détecter des relations utiles de la forme X vers Y, ce qui signifie que la présence de X dans un panier augmente la probabilité d'acheter Y. Dans un premier temps, chaque vente est transformée en transaction contenant un ensemble de produits. Dans un second temps, le module calcule les fréquences d'apparition des produits seuls et des paires de produits, afin d'obtenir les éléments statistiques nécessaires à l'évaluation des règles.
+J'utilise trois mesures qui permettent d'établir les recommandations:
 
-$$
-confidence(X\rightarrow Y)=\frac{support(X,Y)}{support(X)}
-$$
+1. Support: fréquence d'apparition d'un produit ou paire de produits dans l'ensemble de l'historique.
+2. Confidence: Correspond à la probabilité d'observer un produit A quand un produit B est déjà présent.
+3. Lift: Forcé réélle de la relation entre les produits A et B par rapport au hasard. 
 
-$$
-lift(X\rightarrow Y)=\frac{confidence(X\rightarrow Y)}{support(Y)}
-$$
+J'ai mis en place les seuils minimum suivants:
+1. Support = 0.05
+2. Confidence = 0.15
+3. Lift = 1.00
 
-La confiance mesure la probabilité conditionnelle d'observer Y lorsque X est déjà présent, tandis que le lift mesure la force réelle de la relation en comparant cette probabilité conditionnelle à la probabilité globale d'apparition de Y. Le module conserve uniquement les règles qui dépassent des seuils minimaux de support, de confiance et de lift, ce qui permet d'écarter les associations trop rares ou peu significatives. Les produits candidats sont ensuite classés avec un score composite qui donne un poids principal au lift, puis à la confiance et au support. Enfin, le moteur retourne les n meilleurs résultats, avec une stratégie de repli robuste qui propose des produits best-sellers ou des produits du catalogue lorsque l'historique est insuffisant ou lorsqu'aucune règle exploitable n'est disponible.
-
-### Évolutivité du module (US8)
-
-Le module est isolé via l'interface `RecommendationStrategy`, ce qui permet de remplacer l'algorithme sans impacter:
-- le contrôleur API,
-- le service applicatif,
-- les autres modules métier.
-
-Une évolution naturelle est d'introduire:
-- filtrage collaboratif matriciel,
-- modèles hybrides (contenu + co-achat),
-- pondération temporelle des ventes,
-- contextualisation par segment client.
+Le module conserve uniquement les règles qui dépassent les différents seuils minimaux, ce qui permet d'écarter les associations jugées moins pertinentes. Les produits sont ensuite classés avec un score. Le moteur retourne alors les n meilleurs résultats, avec une stratégie de fallback qui propose des produits de type "best-sellers" ou des produits du catalogue lorsque l'historique est insuffisant ou losrqu'aucune règle exploitable n'est disponible.
