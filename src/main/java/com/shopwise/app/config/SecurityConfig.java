@@ -43,9 +43,10 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.DELETE, "/api/products/**")
                         .hasRole("ADMIN")
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/products", "/api/products/**",
-                                "/api/sales", "/api/sales/**")
+                                "/api/sales", "/api/sales/**", "/api/recommendations")
                         .hasAnyRole("USER", "ADMIN")
-                        .requestMatchers("/api/products", "/api/products/**", "/api/sales", "/api/sales/**")
+                        .requestMatchers("/api/products", "/api/products/**", "/api/sales", "/api/sales/**",
+                                "/api/recommendations")
                         .authenticated()
                                                 .anyRequest().permitAll())
                                 .oauth2ResourceServer(oauth2 -> oauth2
