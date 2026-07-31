@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @ControllerAdvice
-public class CustomExceptionHandler {
+public class CustomExceptionHandler implements IErrorHandler {
 
     private static final Logger log = LoggerFactory.getLogger(CustomExceptionHandler.class);
 	

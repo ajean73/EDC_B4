@@ -1,10 +1,5 @@
 package com.shopwise.app.service;
 
-import java.util.List;
+public interface RecommendationService extends IRecommendationService {
 
-import com.shopwise.app.dto.response.RecommendationResponse;
-
-public interface RecommendationService {
-
-    List<RecommendationResponse> recommend(Long productId, int limit);
 }

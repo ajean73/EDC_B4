@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
-<span class="fc" id="L16">public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {</span>
+<span class="fc" id="L16">public class RestAuthenticationEntryPoint implements IAuthGuard {</span>
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
