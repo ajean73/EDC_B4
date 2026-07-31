@@ -153,7 +153,7 @@ Le découpage en modules distincts permet également de mieux isoler les composa
 - Methode: GET
 - URL: /api/sales/{id}
 
-## Question 3
+# Question 3
 
 
 J'ai choisi de mettre en place une sécurisation au niveau de l'API via un système d'authentification par JWT Bearer.
@@ -172,7 +172,7 @@ Code 403: (Forbidden) Accès interdit car rôle insuffisant
 Code 404: (Not found) La ressource est absente
 Code 500:  (Internal Server Error) Erreur côté serveur
 
-## Question 4
+# Question 4
 
 Le périmètre fonctionnel du module de recommandation repose sur deux sources de données. La première source est l'historique des ventes, stocké dans les tables SALES et SALE_ITEMS, qui permet d'observer les produits achetés ensemble dans les transactions passées. La seconde source est le catalogue de produits, stocké dans la table PRODUCTS, qui permet de filtrer et d'enrichir les résultats pour ne recommander que des produits existants (via nom + identifiant).
 
