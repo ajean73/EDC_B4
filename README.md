@@ -56,7 +56,7 @@ Les flux entrants correspondent aux commandes de création de vente et aux deman
 
 Les flux sortants correspondent à l’enregistrement de la vente en base de données et la possibilité de la consultation de ses informations.
 
-Concernant les dépendances, ce module s’appuie sur `SaleRepository`, `SaleLineRepository` et `ProductRepository`.
+Concernant les dépendances, ce module s’appuie sur `SaleRepository`, `SaleItemRepository` et `ProductRepository`.
 
 ---
 
