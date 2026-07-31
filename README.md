@@ -224,16 +224,16 @@ Cette convention de nommage (`*Test` pour unitaire et non regression, `*IT` pour
 ## Commandes d'éxecution
 
 ```bash
-# Unitaires + non regression
+## Unitaires + non regression
 mvn clean test
 
-# Coverage unitaires + non regression uniquement
+## Coverage unitaires + non regression uniquement
 mvn clean test jacoco:report
 
-# Tests complets (unitaires + non regression + integration)
+## Tests complets (unitaires + non regression + integration)
 mvn clean verify
 
-# Intégration uniquement
+## Intégration uniquement
 mvn -DskipUnitTests=true verify
 ```
 
